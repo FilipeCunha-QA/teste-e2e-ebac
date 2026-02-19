@@ -1,66 +1,71 @@
 /// <reference types="cypress" />
+
 import login from '../fixtures/perfil.json'
+import '../support/commands'
 
 context('Exercicio - Testes End-to-end - Fluxo de pedido', () => {
-  /*  Como cliente 
-      Quero acessar a Loja EBAC 
-      Para fazer um pedido de 4 produtos 
-      Fazendo a escolha dos produtos
-      Adicionando ao carrinho
-      Preenchendo todas opções no checkout
-      E validando minha compra ao final */
 
   beforeEach(() => {
-      cy.visit('http://lojaebac.ebaconline.art.br/')
-  });
+    cy.visit('/minha-conta')
+    cy.login(login.usuario, login.senha)
+    cy.visit('/')
+  })
 
   it('Deve fazer um pedido na loja Ebac Shop de ponta a ponta', () => {
-      //TODO: Coloque todo o fluxo de teste aqui, considerando as boas práticas e otimizações
-       //Selecionar Primeiro produto
-    cy.get('#primary-menu > .menu-item-629 > a').click()
-    cy.get('.post-2559 > .product-block > .block-inner > .image > .product-image > .image-hover').click()
-    cy.get('.button-variable-item-XL').click()
-    cy.get('.button-variable-item-Green').click()
-    cy.get('.single_add_to_cart_button').click()
-    //Pesquisar e selecionar segundo produto
-    cy.get('#primary-menu > .menu-item-629 > a').click()
-    cy.get('.search > ').type('Ariel Roll Sleeve Sweatshirt')
-    cy.get('.search > .tbay-search-form > .form-ajax-search > .form-group > .input-group > .button-group > .button-search').click()
-    cy.get('.button-variable-item-XL').click()
-    cy.get('.button-variable-item-Purple').click()
-    cy.get('.single_add_to_cart_button').click()
-    //Pesquisar e selecionar terceiro produto
-    cy.get('.search > ').type('Vulcan Weightlifting Tank')
-    cy.get('.search > .tbay-search-form > .form-ajax-search > .form-group > .input-group > .button-group > .button-search').click()
-    cy.get('.button-variable-item-L').click()
-    cy.get(':nth-child(2) > .value > .variable-items-wrapper > .variable-item').click()
-    cy.get('.single_add_to_cart_button').click()
-    //Pesquisar e selecionar quarto produto
-    cy.get('.search > ').type('Geo Insulated Jogging Pant')
-    cy.get('.search > .tbay-search-form > .form-ajax-search > .form-group > .input-group > .button-group > .button-search').click()
-    cy.get('.button-variable-item-36').click()
-    cy.get('.button-variable-item-Red').click()
-    cy.get('.single_add_to_cart_button').click()
-    
-    //Selecionar o carrinho
-    cy.get('.dropdown-toggle > .text-skin').click()
-    cy.get('#cart > .dropdown-menu > .widget_shopping_cart_content > .mini_cart_content > .mini_cart_inner > .mcart-border > .buttons > .view-cart').click()
-    cy.get('.checkout-button').click()
-    cy.get('.showlogin').click()
-    cy.get('#username').type(login.usuario)
-    cy.get('#password').clear().type(login.senha)
-    cy.get('.woocommerce-button').click()
-    //finalizar a compra
-    cy.get('#terms').check({ force: true })
-    cy.get('#place_order').click()
-    cy.get('.page-title').should('exist')
 
+    cy.fixture('produtos').then((produtos) => {
 
+      cy.wrap(produtos).each((produto) => {
 
+        // Ir para página de produtos
+        cy.get('#primary-menu > .menu-item-629 > a').click()
 
-      
-});
-   
+        // Buscar produto
+        cy.get('.search input[name="s"]')
+          .clear()
+          .type(produto.nome)
 
+        cy.get('.search').within(() => {
+          cy.get('button[type="submit"]').click()
+        })
+
+        // Selecionar produto
+        cy.contains('.product', produto.nome)
+          .click()
+
+        // Selecionar variações
+        cy.get(`.button-variable-item-${produto.tamanho}`).click()
+        cy.get(`.button-variable-item-${produto.cor}`).click()
+
+        // Adicionar ao carrinho
+        cy.get('.single_add_to_cart_button').click()
+
+        cy.contains('foi adicionado no seu carrinho')
+          .should('be.visible')
+
+      })
+
+      // Ir para carrinho
+      cy.visit('/carrinho')
+
+      // Checkout
+      cy.get('.checkout-button').click()
+
+      // Selecionar pagamento
+      cy.get('#payment_method_bacs').click()
+
+      // Aceitar termos
+      cy.get('#terms').click()
+
+      // Finalizar pedido
+      cy.get('#place_order').click()
+
+      // Validar confirmação
+      cy.contains('Obrigado. Seu pedido foi recebido.', { timeout: 10000 })
+        .should('be.visible')
+
+    })
+
+  })
 
 })
