@@ -1,0 +1,20 @@
+[
+    {
+        "livro": "A Revolução dos Bichos",
+        "categoria":"Ficção"
+    },
+
+    {   "livro": "A ARTE DA GUERRA",
+        "categoria":"Estratégia"
+    },
+    {
+        "livro": "Dom Quixote",
+        "categoria":"Romance"
+        },
+        {
+        
+        "livro": "O Código Da Vinci",
+        "categoria":"Misterio"
+
+        }
+]

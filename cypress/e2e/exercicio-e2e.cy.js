@@ -1,71 +1,39 @@
 /// <reference types="cypress" />
+import { faker } from '@faker-js/faker';
+import {  } from '../support/commands'
+import catalogo from "../fixtures/catalogo.json"
 
-import login from '../fixtures/perfil.json'
-import '../support/commands'
-
-context('Exercicio - Testes End-to-end - Fluxo de pedido', () => {
+describe('Deve fazer teste e2e', () => {
 
   beforeEach(() => {
-    cy.visit('/minha-conta')
-    cy.login(login.usuario, login.senha)
-    cy.visit('/')
-  })
+    cy.visit('http://localhost:3000')
+    
+  });
 
-  it('Deve fazer um pedido na loja Ebac Shop de ponta a ponta', () => {
-
-    cy.fixture('produtos').then((produtos) => {
-
-      cy.wrap(produtos).each((produto) => {
-
-        // Ir para página de produtos
-        cy.get('#primary-menu > .menu-item-629 > a').click()
-
-        // Buscar produto
-        cy.get('.search input[name="s"]')
-          .clear()
-          .type(produto.nome)
-
-        cy.get('.search').within(() => {
-          cy.get('button[type="submit"]').click()
-        })
-
-        // Selecionar produto
-        cy.contains('.product', produto.nome)
-          .click()
-
-        // Selecionar variações
-        cy.get(`.button-variable-item-${produto.tamanho}`).click()
-        cy.get(`.button-variable-item-${produto.cor}`).click()
-
-        // Adicionar ao carrinho
-        cy.get('.single_add_to_cart_button').click()
-
-        cy.contains('foi adicionado no seu carrinho')
-          .should('be.visible')
-
-      })
-
-      // Ir para carrinho
-      cy.visit('/carrinho')
-
-      // Checkout
-      cy.get('.checkout-button').click()
-
-      // Selecionar pagamento
-      cy.get('#payment_method_bacs').click()
-
-      // Aceitar termos
-      cy.get('#terms').click()
-
-      // Finalizar pedido
-      cy.get('#place_order').click()
-
-      // Validar confirmação
-      cy.contains('Obrigado. Seu pedido foi recebido.', { timeout: 10000 })
-        .should('be.visible')
-
-    })
-
-  })
-
+  it('Deve fazer cadastro completo', () => {
+   //Cadastrar o usuario usando o faker
+    let email = faker.internet.email()
+    let nome = faker.person.fullName()
+    let senha = faker.internet.password()
+    cy.visit('/register.html')
+    cy.PreencherCadastro(nome, email, senha)
+    cy.url('should', 'dashboard')
+    //Buscar produtos e colocar na cesta
+    cy.get('.d-grid > .btn-primary').click()
+    cy.get('#search-input').clear().type(catalogo[0].livro)
+    cy.contains('button', 'Adicionar à Cesta').click()
+    cy.get('#search-input').clear().type(catalogo[1].livro)
+    cy.contains('button', 'Adicionar à Cesta').click()
+    cy.get('#search-input').clear().type(catalogo[2].livro)
+    cy.contains('button', 'Adicionar à Cesta').click()
+    cy.get('#search-input').clear().type(catalogo[3].livro)
+    cy.contains('button', 'Adicionar à Cesta').click()
+    //
+    cy.get(':nth-child(2) > .nav-link').click()
+    cy.get('#checkout-btn').click()
+    cy.get('#terms-agreement').click()
+    cy.get('#confirm-reservations-btn').click()
+    cy.get('.confirmation-card').should('contain','Reservas Confirmadas!')
 })
+
+});
