@@ -1,6 +1,5 @@
 /// <reference types="cypress" />
 import { faker } from '@faker-js/faker';
-import {  } from '../support/commands'
 import catalogo from "../fixtures/catalogo.json"
 
 describe('Deve fazer teste e2e', () => {
@@ -10,14 +9,14 @@ describe('Deve fazer teste e2e', () => {
     
   });
 
-  it('Deve fazer cadastro completo', () => {
+  it('Deve fazer teste e2e completo', () => {
    //Cadastrar o usuario usando o faker
     let email = faker.internet.email()
     let nome = faker.person.fullName()
     let senha = faker.internet.password()
     cy.visit('/register.html')
     cy.PreencherCadastro(nome, email, senha)
-    cy.url('should', 'dashboard')
+    cy.url('contain', 'dashboard')
     //Buscar produtos e colocar na cesta
     cy.get('.d-grid > .btn-primary').click()
     cy.get('#search-input').clear().type(catalogo[0].livro)
