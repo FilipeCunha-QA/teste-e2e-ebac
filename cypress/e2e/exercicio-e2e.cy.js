@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 import { faker } from '@faker-js/faker';
 import catalogo from "../fixtures/catalogo.json"
-
+import {  } from "../support/commands";
 describe('Deve fazer teste e2e', () => {
 
   beforeEach(() => {
